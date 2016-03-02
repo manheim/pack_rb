@@ -1,8 +1,6 @@
 # PackRb
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/pack_rb`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
+A gem for driving the Packer command line tool from within your Ruby project.
 
 ## Installation
 
@@ -22,7 +20,36 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+
+### With In Memory Template
+```ruby
+require 'pack_rb'
+require 'json'
+
+template = {
+  variables: { foo: 'bar'},
+  builders:   [
+    {
+      type:         'null,
+      ssh_host:     '127.0.0.1',
+      ssh_username: 'foo',
+      ssh_password: 'bar'
+    }
+  ]
+}.to_json
+
+packer = Packer.new(tpl: template.to_json, machine_readable: true)
+packer.build(debug: true)
+```
+
+### With Template File
+
+```ruby
+require 'pack_rb'
+
+packer = Packer.new(tpl: 'config/template.json', machine_readable: true)
+packer.build(debug: true)
+```
 
 ## Development
 
