@@ -30,7 +30,7 @@ template = {
   variables: { foo: 'bar'},
   builders:   [
     {
-      type:         'null,
+      type:         'null',
       ssh_host:     '127.0.0.1',
       ssh_username: 'foo',
       ssh_password: 'bar'
