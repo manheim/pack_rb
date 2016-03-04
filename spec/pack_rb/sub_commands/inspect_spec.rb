@@ -1,8 +1,8 @@
 require 'spec_helper'
-require 'pack_rb/commands/inspect'
+require 'pack_rb/sub_commands/inspect'
 
 module PackRb
-  module Commands
+  module SubCommands
     describe Inspect do
       before do
         Harness = Class.new {

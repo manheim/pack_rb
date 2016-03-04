@@ -1,8 +1,8 @@
 require 'spec_helper'
-require 'pack_rb/commands/build'
+require 'pack_rb/sub_commands/build'
 
 module PackRb
-  module Commands
+  module SubCommands
     describe Build do
       before do
         Harness = Class.new {

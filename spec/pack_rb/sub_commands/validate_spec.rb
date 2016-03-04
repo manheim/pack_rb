@@ -1,8 +1,8 @@
 require 'spec_helper'
-require 'pack_rb/commands/validate'
+require 'pack_rb/sub_commands/validate'
 
 module PackRb
-  module Commands
+  module SubCommands
     describe Validate do
       before do
         Harness = Class.new {

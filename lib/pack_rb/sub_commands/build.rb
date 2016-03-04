@@ -1,5 +1,5 @@
 module PackRb
-  module Commands
+  module SubCommands
     module Build
       def build_cmd
         "#{command} build"

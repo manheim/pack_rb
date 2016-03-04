@@ -1,5 +1,5 @@
 module PackRb
-  module Commands
+  module SubCommands
     module Validate
       def validate_cmd
         "#{command} validate"

@@ -1,5 +1,5 @@
 module PackRb
-  module Commands
+  module SubCommands
     module Inspect
       def inspect_cmd
         "#{command} inspect"
