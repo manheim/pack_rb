@@ -64,6 +64,27 @@ module PackRb
           it { is_expected.to eq(json) }
         end
       end
+
+      describe '#method_missing' do
+        let(:json) { %Q{{"variables":{"foo":"bar"}}} }
+        let(:expected_opts) do
+          {
+            base_cmd: 'packer',
+            tpl: json,
+            args: { debug: true, only: ['foo','bar'] }
+          }
+        end
+
+        it 'delegates to commander' do
+          p = Packer.new(tpl: json)
+          expect(p.commander).to receive(:build).with(expected_opts)
+          p.build(debug: true, only: ['foo','bar'])
+        end
+
+        it 'raises if sub command not supported' do
+          expect{ Packer.new.foo }.to raise_error(NoMethodError)
+        end
+      end
     end
   end
 end
