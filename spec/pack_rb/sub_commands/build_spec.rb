@@ -2,19 +2,14 @@ require 'spec_helper'
 require 'pack_rb/sub_commands/build'
 
 module PackRb
-  module SubCommands
+  class SubCommands
     describe Build do
       before do
-        Harness = Class.new {
-          include Build
-          def command
-            'packer'
-          end
-        }
+        Harness = Class.new { include Build }
       end
 
       context '#build_cmd' do
-        subject { Harness.new().build_cmd }
+        subject { Harness.new().build(base_cmd: 'packer') }
         it { is_expected.to eq('packer build') }
       end
     end

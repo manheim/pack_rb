@@ -2,19 +2,14 @@ require 'spec_helper'
 require 'pack_rb/sub_commands/validate'
 
 module PackRb
-  module SubCommands
+  class SubCommands
     describe Validate do
       before do
-        Harness = Class.new {
-          include Validate
-          def command
-            'packer'
-          end
-        }
+        Harness = Class.new { include Validate }
       end
 
-      context '#validate_cmd' do
-        subject { Harness.new().validate_cmd }
+      context '#validate' do
+        subject { Harness.new().validate(base_cmd: 'packer') }
         it { is_expected.to eq('packer validate') }
       end
     end

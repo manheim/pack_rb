@@ -1,8 +1,9 @@
 module PackRb
-  module SubCommands
+  class SubCommands
     module Inspect
-      def inspect_cmd
-        "#{command} inspect"
+      def inspect(opts)
+        base_cmd = opts[:base_cmd]
+        "#{base_cmd} inspect"
       end
     end
   end

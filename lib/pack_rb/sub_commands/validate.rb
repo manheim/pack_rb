@@ -1,8 +1,9 @@
 module PackRb
-  module SubCommands
+  class SubCommands
     module Validate
-      def validate_cmd
-        "#{command} validate"
+      def validate(opts)
+        base_cmd = opts[:base_cmd]
+        "#{base_cmd} validate"
       end
     end
   end
