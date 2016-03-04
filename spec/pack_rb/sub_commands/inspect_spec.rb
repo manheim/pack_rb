@@ -8,8 +8,8 @@ module PackRb
         Harness = Class.new { include Inspect }
       end
 
-      context '#inspect_cmd' do
-        subject { Harness.new().inspect(base_cmd: 'packer') }
+      context '#inspect_tpl' do
+        subject { Harness.new().inspect_tpl(base_cmd: 'packer') }
         it { is_expected.to eq('packer inspect') }
       end
     end
