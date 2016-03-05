@@ -1,3 +1,4 @@
+require 'pack_rb/sub_commands/error/errors'
 module PackRb
   class SubCommands
     module Build
@@ -5,6 +6,49 @@ module PackRb
         base_cmd = opts[:base_cmd]
 
         "#{base_cmd} build"
+      end
+
+      def parse_options(opts)
+        transformed_opts = opts.inject([]) do |arr, kv|
+          key = kv.first
+          val = kv.last
+
+          raise Error::UnsupportedOption unless supported?(key)
+
+          arr << transform(key).call(key.to_s, val)
+        end
+
+        transformed_opts.join(' ')
+      end
+
+      private
+      def transformation_strategy
+        {
+          except: array_type,
+          only: array_type,
+          color: boolean_type,
+          force: flag_type
+        }
+      end
+
+      def transform(opt)
+        transformation_strategy[opt]
+      end
+
+      def supported?(opt)
+        transformation_strategy.keys.include?(opt)
+      end
+
+      def array_type
+        Proc.new { |opt, val| "-#{opt}=#{val.join(',')}" }
+      end
+
+      def boolean_type
+        Proc.new { |opt, val| "-#{opt}=#{val}" }
+      end
+
+      def flag_type
+        Proc.new { |opt, val| val ? "-#{opt}" : '' }
       end
     end
   end
