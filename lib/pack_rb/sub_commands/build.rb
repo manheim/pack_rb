@@ -4,8 +4,11 @@ module PackRb
     module Build
       def build(opts)
         base_cmd = opts[:base_cmd]
+        args     = opts[:args]
 
-        "#{base_cmd} build"
+        cmd_arr = [ base_cmd, 'build' ]
+        cmd_arr << parse_options(args) if args
+        cmd_arr.join(' ')
       end
 
       def parse_options(opts)
@@ -27,7 +30,8 @@ module PackRb
           except: array_type,
           only: array_type,
           color: boolean_type,
-          force: flag_type
+          force: flag_type,
+          debug: flag_type
         }
       end
 

@@ -13,6 +13,16 @@ module PackRb
         it { is_expected.to eq('packer build') }
 
         context 'with options' do
+          let(:opts) do
+            {
+              base_cmd: 'packer',
+              args: { force: true }
+            }
+          end
+
+          subject { @harness.new().build(opts) }
+
+          it { is_expected.to eq('packer build -force') }
         end
       end
 
@@ -51,9 +61,11 @@ module PackRb
 
           context 'flags' do
             context 'when true' do
-              let(:opts) { {force: true} }
+              let(:force_opts) { {force: true} }
+              let(:debug_opts) { {debug: true} }
               it 'should just return the flag name in option format' do
-                expect(subject.parse_options(opts)).to eq('-force')
+                expect(subject.parse_options(force_opts)).to eq('-force')
+                expect(subject.parse_options(debug_opts)).to eq('-debug')
               end
             end
 
