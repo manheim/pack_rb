@@ -39,9 +39,6 @@ module PackRb
         args: args.first
       }
 
-      require 'pry'
-      binding.pry
-
       commander.send(name, opts)
     end
 
