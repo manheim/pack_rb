@@ -34,6 +34,27 @@ module PackRb
 
         it { is_expected.to eq('/usr/local/bin/packer') }
       end
+
+      context 'effect on #command' do
+        subject { Packer.new(opts).command }
+
+        context 'without machine-readable' do
+          let(:opts) { { bin_path: '/usr/local/bin/packer' } }
+
+          it { is_expected.to eq('/usr/local/bin/packer') }
+        end
+
+        context 'with machine-redable' do
+          let(:opts) do
+            {
+              bin_path: '/usr/local/bin/packer',
+              machine_readable: true
+            }
+          end
+
+          it { is_expected.to eq('/usr/local/bin/packer -machine-readable') }
+        end
+      end
     end
 
     context '#template' do

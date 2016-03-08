@@ -11,9 +11,9 @@ module PackRb
 
     def command
       if machine_readable
-        'packer -machine-readable'
+        "#{bin} -machine-readable"
       else
-        'packer'
+        bin
       end
     end
 
