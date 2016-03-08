@@ -25,7 +25,6 @@ Gem::Specification.new do |spec|
   spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
   spec.require_paths = ["lib"]
 
-  spec.add_development_dependency "bundler", "~> 1.11"
   spec.add_development_dependency "guard", "~> 2.13"
   spec.add_development_dependency "guard-bundler", "~> 2.1"
   spec.add_development_dependency "guard-rspec", "~> 4.6"

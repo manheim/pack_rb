@@ -1,4 +1,5 @@
 require 'json'
+require 'pack_rb/sub_commands'
 
 module PackRb
   class Packer
@@ -10,9 +11,9 @@ module PackRb
 
     def command
       if machine_readable
-        'packer -machine-readable'
+        "#{bin} -machine-readable"
       else
-        'packer'
+        bin
       end
     end
 
@@ -23,6 +24,22 @@ module PackRb
     def template
       obj = @tpl
       json?(obj) || path?(obj) || hash?(obj)
+    end
+
+    def commander
+      @commander ||= PackRb::SubCommands.new
+    end
+
+    def method_missing(name, *args, &block)
+      return super unless commander.respond_to?(name)
+
+      opts = {
+        base_cmd: command,
+        tpl: template,
+        args: args.first
+      }
+
+      commander.send(name, opts)
     end
 
     private
