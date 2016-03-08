@@ -5,12 +5,32 @@ module PackRb
   class SubCommands
     describe Inspect do
       before do
-        @harness ||= Class.new { include Inspect }
+        @harness ||= Class.new do
+          include Inspect
+
+          def execute(opts)
+            puts opts
+          end
+        end
       end
 
       context '#inspect_tpl' do
-        subject { @harness.new().inspect_tpl(base_cmd: 'packer') }
-        it { is_expected.to eq('packer inspect') }
+        let(:json) { %Q{{"variables":{"foo":"bar"}}} }
+        let(:opts) do
+          {
+            base_cmd: 'packer',
+            tpl: json
+          }
+        end
+
+        it 'should call execute on extended class' do
+          h = @harness.new()
+
+          expect(h).to receive(:execute).
+            with(cmd: 'packer inspect', tpl: json)
+
+          h.inspect_tpl(opts)
+        end
       end
     end
   end
