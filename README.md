@@ -1,6 +1,15 @@
 # PackRb
 
-A gem for driving the Packer command line tool from within your Ruby project.
+A gem for driving the [Packer][1] command line tool from within your Ruby project.
+
+This gem was built against version ``0.9.0`` of [Packer][1]
+
+## Pre-Requisites
+
+You must have a version of [Packer][1] installed.
+
+Go [download a copy][2] for your OS.
+
 
 ## Installation
 
@@ -20,8 +29,8 @@ Or install it yourself as:
 
 ## Usage
 
-
 ### With In Memory Template
+
 ```ruby
 require 'pack_rb'
 require 'json'
@@ -38,16 +47,19 @@ template = {
   ]
 }.to_json
 
-packer = Packer.new(tpl: template.to_json, machine_readable: true)
+packer = PackRb::Packer.new(tpl: template, machine_readable: true)
 packer.build(debug: true)
 ```
+
+__Note:__ A plain old ruby hash can be used for template also. Just leave off
+the JSON bits.
 
 ### With Template File
 
 ```ruby
 require 'pack_rb'
 
-packer = Packer.new(tpl: 'config/template.json', machine_readable: true)
+packer = PackRb::Packer.new(tpl: 'config/template.json', machine_readable: true)
 packer.build(debug: true)
 ```
 
@@ -66,3 +78,5 @@ Bug reports and pull requests are welcome on GitHub at https://github.com/[USERN
 
 The gem is available as open source under the terms of the [MIT License](http://opensource.org/licenses/MIT).
 
+[1]: https://www.packer.io/
+[2]: https://www.packer.io/downloads.html
