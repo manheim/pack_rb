@@ -19,71 +19,71 @@ module PackRb
           it { is_expected.to eq('packer') }
         end
       end
+    end
 
-      context '#bin' do
-        subject { Packer.new(opts).bin }
+    context '#bin' do
+      subject { Packer.new(opts).bin }
 
-        context 'default' do
-          let(:opts) { Hash.new }
-          it { is_expected.to eq('packer') }
-        end
-
-        context '/usr/local/bin/packer' do
-          let(:opts) { { bin_path: '/usr/local/bin/packer' } }
-
-          it { is_expected.to eq('/usr/local/bin/packer') }
-        end
+      context 'default' do
+        let(:opts) { Hash.new }
+        it { is_expected.to eq('packer') }
       end
 
-      context '#template' do
-        subject { Packer.new(opts).template }
+      context '/usr/local/bin/packer' do
+        let(:opts) { { bin_path: '/usr/local/bin/packer' } }
 
-        context 'with hash' do
-          let(:json) { %Q{{"variables":{"foo":"bar"}}} }
-          let(:opts) { { tpl: { variables: { foo: 'bar'} } } }
-
-          it { is_expected.to eq(json) }
-        end
-
-        context 'with file path' do
-          before do
-            allow(File).to receive(:read).with(path).and_return(json)
-          end
-
-          let(:json) { %Q{{"variables":{"foo":"bar"}}} }
-          let(:path) { 'config/packer.json' }
-          let(:opts) { { tpl: path } }
-
-          it { is_expected.to eq(json) }
-        end
-
-        context 'with string of json' do
-          let(:json) { %Q{{"variables":{"foo":"bar"}}} }
-          let(:opts) { { tpl: json } }
-
-          it { is_expected.to eq(json) }
-        end
+        it { is_expected.to eq('/usr/local/bin/packer') }
       end
+    end
 
-      describe '#method_missing' do
+    context '#template' do
+      subject { Packer.new(opts).template }
+
+      context 'with hash' do
         let(:json) { %Q{{"variables":{"foo":"bar"}}} }
-        let(:expected_opts) do
-          {
-            base_cmd: 'packer',
-            tpl: json,
-            args: { debug: true, only: ['foo','bar'] }
-          }
+        let(:opts) { { tpl: { variables: { foo: 'bar'} } } }
+
+        it { is_expected.to eq(json) }
+      end
+
+      context 'with file path' do
+        before do
+          allow(File).to receive(:read).with(path).and_return(json)
         end
 
-        it 'delegates to commander' do
-          p = Packer.new(tpl: json)
-          expect(p.commander).to receive(:build).with(expected_opts)
-          p.build(debug: true, only: ['foo','bar'])
-        end
+        let(:json) { %Q{{"variables":{"foo":"bar"}}} }
+        let(:path) { 'config/packer.json' }
+        let(:opts) { { tpl: path } }
 
-        it 'raises if sub command not supported' do
-          expect{ Packer.new.foo }.to raise_error(NoMethodError)
-        end
+        it { is_expected.to eq(json) }
+      end
+
+      context 'with string of json' do
+        let(:json) { %Q{{"variables":{"foo":"bar"}}} }
+        let(:opts) { { tpl: json } }
+
+        it { is_expected.to eq(json) }
+      end
+    end
+
+    describe '#method_missing' do
+      let(:json) { %Q{{"variables":{"foo":"bar"}}} }
+      let(:expected_opts) do
+        {
+          base_cmd: 'packer',
+          tpl: json,
+          args: { debug: true, only: ['foo','bar'] }
+        }
+      end
+
+      it 'delegates to commander' do
+        p = Packer.new(tpl: json)
+        expect(p.commander).to receive(:build).with(expected_opts)
+        p.build(debug: true, only: ['foo','bar'])
+      end
+
+      it 'raises if sub command not supported' do
+        expect{ Packer.new.foo }.to raise_error(NoMethodError)
       end
     end
   end
