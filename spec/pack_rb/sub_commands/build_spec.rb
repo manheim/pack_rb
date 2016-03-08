@@ -5,24 +5,32 @@ module PackRb
   class SubCommands
     describe Build do
       before do
-        @harness ||= Class.new { include Build }
+        @harness ||= Class.new do
+          include Build
+
+          def execute(opts)
+            puts opts
+          end
+        end
       end
 
       context '#build_cmd' do
-        subject { @harness.new().build(base_cmd: 'packer') }
-        it { is_expected.to eq('packer build') }
+        let(:json) { %Q{{"variables":{"foo":"bar"}}} }
+        let(:opts) do
+          {
+            base_cmd: 'packer',
+            args: { force: true },
+            tpl: json
+          }
+        end
 
-        context 'with options' do
-          let(:opts) do
-            {
-              base_cmd: 'packer',
-              args: { force: true }
-            }
-          end
+        it 'should call execute on the extended class' do
+          h = @harness.new()
 
-          subject { @harness.new().build(opts) }
+          expect(h).to receive(:execute).
+            with(cmd: 'packer build -force', tpl: json)
 
-          it { is_expected.to eq('packer build -force') }
+          h.build(opts)
         end
       end
 

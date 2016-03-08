@@ -5,10 +5,12 @@ module PackRb
       def build(opts)
         base_cmd = opts[:base_cmd]
         args     = opts[:args]
+        tpl      = opts[:tpl]
 
         cmd_arr = [ base_cmd, 'build' ]
         cmd_arr << parse_options(args) if args
-        cmd_arr.join(' ')
+
+        execute(cmd: cmd_arr.join(' '), tpl: tpl)
       end
 
       def parse_options(opts)
