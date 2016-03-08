@@ -14,7 +14,12 @@ module PackRb
       cmd = opts[:cmd]
       tpl = opts[:tpl]
 
-      Open3.capture3(cmd, stdin_data: tpl)
+      out, err, status = Open3.capture3("#{cmd} -", stdin_data: tpl)
+
+      if status.exitstatus != 0
+        puts out if out
+        puts err if err
+      end
     end
   end
 end
