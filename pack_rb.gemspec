@@ -9,9 +9,10 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Jonathan Niesen"]
   spec.email         = ["jon.niesen@gmail.com"]
 
-  spec.summary       = %q{TODO: Write a short summary, because Rubygems requires one.}
-  spec.description   = %q{TODO: Write a longer description or delete this line.}
-  spec.homepage      = "TODO: Put your gem's website or public repo URL here."
+  spec.summary       = %q{A Packer CLI wrapper.}
+  spec.description   = ['A gem for driving the Packer command line tool',
+                        'from within your Ruby project.'].join(' ')
+  spec.homepage      = "https://github.com/manheim/pack_rb"
   spec.license       = "MIT"
 
   # Prevent pushing this gem to RubyGems.org by setting 'allowed_push_host', or
