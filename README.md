@@ -1,5 +1,7 @@
 # PackRb
 
+[![Circle CI](https://circleci.com/gh/manheim/pack_rb.svg?style=svg)](https://circleci.com/gh/manheim/pack_rb)
+
 A gem for driving the [Packer][1] command line tool from within your Ruby project.
 
 This gem was built against version ``0.9.0`` of [Packer][1]
