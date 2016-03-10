@@ -19,10 +19,7 @@ module PackRb
       cmd = opts[:cmd]
       tpl = opts[:tpl]
 
-      out, err, status = run_cmd_stream_output("#{cmd} -", tpl)
-      # rubocop:disable Style/RedundantReturn
-      return [out, err, status]
-      # rubocop:enable Style/RedundantReturn
+      run_cmd_stream_output("#{cmd} -", tpl)
     end
 
     # popen3 wrapper to simultaneously stream command output to the
