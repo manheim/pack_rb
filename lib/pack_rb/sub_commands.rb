@@ -61,9 +61,7 @@ module PackRb
         end
         exit_status = wait_thread.value.exitstatus
       end
-      # rubocop:disable Style/RedundantReturn
-      return all_out, all_err, exit_status
-      # rubocop:enable Style/RedundantReturn
+      [all_out, all_err, exit_status]
     end
   end
 end
