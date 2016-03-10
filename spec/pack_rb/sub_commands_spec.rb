@@ -14,62 +14,137 @@ module PackRb
     context '#execute' do
       let(:cmd) { 'packer build' }
       let(:json) { %Q{{"variables":{"foo":"bar"}}} }
-      let(:stdin) { {stdin_data: json} }
-      let(:status) { double('status', exitstatus: 0) }
 
-
-      it 'runs the provided command using Open3' do
-
-        allow(Open3).to receive(:capture3) do
-          [double('io'), double('io'), status]
-        end
-
-        expect(Open3).to receive(:capture3).with("#{cmd} -", stdin)
-        SubCommands.new.execute(cmd: cmd, tpl: json)
+      it 'runs the provided command using run_cmd_stream_output' do
+        allow(subject).to receive(:run_cmd_stream_output)
+          .and_return(['out', 'err', 0])
+        expect(subject).to receive(:run_cmd_stream_output).once
+          .with("#{cmd} -", json)
+        subject.execute(cmd: cmd, tpl: json)
       end
 
-      context 'on error' do
-        let(:out) { double('out', to_s: 'oh noes') }
-        let(:err) { double('err', to_s: 'kabloom') }
-        let(:status) { double('status', exitstatus: 1) }
+      it 'returns the stdout, stderr and exit code' do
+        allow(subject).to receive(:run_cmd_stream_output)
+          .and_return(['out', 'err', 0])
+        expect(subject).to receive(:run_cmd_stream_output).once
+          .with("#{cmd} -", json)
+        expect(subject.execute(cmd: cmd, tpl: json)).to eq(['out', 'err', 0])
+      end
+    end
+    describe '#run_cmd_stream_output' do
+      subject do
+        SubCommands.new
+      end
+      let(:tpl) { 'template_data' }
+      # test logic for this was inspired by:
+      # http://rxr.whitequark.org/rubinius/source/spec/ruby/core/io/select_spec.rb
+      before :each do
+        @outpipe_r, @outpipe_w = IO.pipe
+        @errpipe_r, @errpipe_w = IO.pipe
+        @inpipe_r, @inpipe_w = IO.pipe
+      end
+      after :each do
+        @outpipe_r.close unless @outpipe_r.closed?
+        @outpipe_w.close unless @outpipe_w.closed?
+        @errpipe_r.close unless @errpipe_r.closed?
+        @errpipe_w.close unless @errpipe_w.closed?
+        @inpipe_r.close unless @inpipe_r.closed?
+        @inpipe_w.close unless @inpipe_w.closed?
+      end
+      context 'success' do
+        it 'prints and returns STDOUT' do
+          dbl_wait_thread = double(Thread)
+          @errpipe_w.close
+          @outpipe_w.write('mystdout')
+          @outpipe_w.close
+          es = double('exitstatus', exitstatus: 0)
+          allow(dbl_wait_thread).to receive(:value).and_return(es)
+          allow(Open3).to receive(:popen3).and_yield(
+            @inpipe_w, @outpipe_r, @errpipe_r, dbl_wait_thread
+          )
 
-        # As of version 0.9.0 packer sends errors to stdout.
-        # This will print both stdout and stderr for in the future if/when
-        # they fix this oddity.
-        it 'prints stdout and stderr' do
-          allow(Open3).to receive(:capture3) do
-            [out, err, status]
-          end
-
-          expect{ SubCommands.new.execute(cmd: cmd, tpl: json) }
-            .to output("oh noes\nkabloom\n").to_stdout
+          expect(Open3).to receive(:popen3).once.with('foo bar')
+          expect(STDOUT).to receive(:puts).once.with('mystdout')
+          expect(subject.run_cmd_stream_output('foo bar', tpl))
+            .to eq(['mystdout', '', 0])
+          expect(@inpipe_r.read).to eq(tpl)
         end
+        it 'prints and returns STDERR' do
+          dbl_wait_thread = double(Thread)
+          @errpipe_w.write('mystderr')
+          @errpipe_w.close
+          @outpipe_w.close
+          es = double('exitstatus', exitstatus: 0)
+          allow(dbl_wait_thread).to receive(:value).and_return(es)
+          allow(Open3).to receive(:popen3).and_yield(
+            @inpipe_w, @outpipe_r, @errpipe_r, dbl_wait_thread
+          )
 
-        context 'no stdout message' do
-          let(:out) { nil }
-
-          it 'only prints stderr' do
-            allow(Open3).to receive(:capture3) do
-              [out, err, status]
-            end
-
-            expect{ SubCommands.new.execute(cmd: cmd, tpl: json) }
-              .to output("kabloom\n").to_stdout
-          end
+          expect(Open3).to receive(:popen3).once.with('foo bar')
+          expect(STDERR).to receive(:puts).once.with('mystderr')
+          expect(subject.run_cmd_stream_output('foo bar', tpl))
+            .to eq(['', 'mystderr', 0])
+          expect(@inpipe_r.read).to eq(tpl)
         end
+        it 'prints and returns both STDOUT and STDERR' do
+          dbl_wait_thread = double(Thread)
+          @errpipe_w.write('STDERR')
+          @errpipe_w.close
+          @outpipe_w.write('mystdout')
+          @outpipe_w.close
+          es = double('exitstatus', exitstatus: 0)
+          allow(dbl_wait_thread).to receive(:value).and_return(es)
+          allow(Open3).to receive(:popen3).and_yield(
+            @inpipe_w, @outpipe_r, @errpipe_r, dbl_wait_thread
+          )
 
-        context 'no stderr message' do
-          let(:out) { double('out', to_s: 'oh noes') }
-          let(:err) { nil }
+          expect(Open3).to receive(:popen3).once.with('foo bar')
+          expect(STDOUT).to receive(:puts).once.with('mystdout')
+          expect(STDERR).to receive(:puts).once.with('STDERR')
+          expect(subject.run_cmd_stream_output('foo bar', tpl))
+            .to eq(['mystdout', 'STDERR', 0])
+          expect(@inpipe_r.read).to eq(tpl)
+        end
+      end
+      context 'IOError' do
+        it 'handles IOErrors gracefully' do
+          dbl_wait_thread = double(Thread)
+          @errpipe_w.close
+          @outpipe_w.write('mystdout')
+          @outpipe_w.close
+          @errpipe_r.close
+          es = double('exitstatus', exitstatus: 0)
+          allow(dbl_wait_thread).to receive(:value).and_return(es)
+          allow(Open3).to receive(:popen3).and_yield(
+            @inpipe_w, @outpipe_r, @errpipe_r, dbl_wait_thread
+          )
 
-          it 'only prints stdout' do
-            allow(Open3).to receive(:capture3) do
-              [out, err, status]
-            end
+          expect(Open3).to receive(:popen3).once.with('foo bar')
+          expect(STDERR).to receive(:puts).once.with('IOError: closed stream')
+          expect(subject.run_cmd_stream_output('foo bar', tpl))
+            .to eq(['', '', 0])
+          expect(@inpipe_r.read).to eq(tpl)
+        end
+      end
+      context 'failure' do
+        it 'returns the non-zero exit code' do
+          dbl_wait_thread = double(Thread)
+          @errpipe_w.write('STDERR')
+          @errpipe_w.close
+          @outpipe_w.write('mystdout')
+          @outpipe_w.close
+          es = double('exitstatus', exitstatus: 23)
+          allow(dbl_wait_thread).to receive(:value).and_return(es)
+          allow(Open3).to receive(:popen3).and_yield(
+            @inpipe_w, @outpipe_r, @errpipe_r, dbl_wait_thread
+          )
 
-            expect{ SubCommands.new.execute(cmd: cmd, tpl: json) }
-              .to output("oh noes\n").to_stdout
-          end
+          expect(Open3).to receive(:popen3).once.with('foo bar')
+          expect(STDOUT).to receive(:puts).once.with('mystdout')
+          expect(STDERR).to receive(:puts).once.with('STDERR')
+          expect(subject.run_cmd_stream_output('foo bar', tpl))
+            .to eq(['mystdout', 'STDERR', 23])
+          expect(@inpipe_r.read).to eq(tpl)
         end
       end
     end
