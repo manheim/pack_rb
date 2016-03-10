@@ -14,63 +14,19 @@ module PackRb
     context '#execute' do
       let(:cmd) { 'packer build' }
       let(:json) { %Q{{"variables":{"foo":"bar"}}} }
-      let(:stdin) { {stdin_data: json} }
-      let(:status) { double('status', exitstatus: 0) }
 
-
-      it 'runs the provided command using Open3' do
-
-        allow(Open3).to receive(:capture3) do
-          [double('io'), double('io'), status]
-        end
-
-        expect(Open3).to receive(:capture3).with("#{cmd} -", stdin)
-        SubCommands.new.execute(cmd: cmd, tpl: json)
+      it 'runs the provided command using run_cmd_stream_output' do
+        allow(PackRb::Executor).to receive(:run_cmd_stream_output)
+          .and_return(['out', 'err', 0])
+        expect(PackRb::Executor).to receive(:run_cmd_stream_output).once
+          .with("#{cmd} -", json)
+        subject.execute(cmd: cmd, tpl: json)
       end
 
-      context 'on error' do
-        let(:out) { double('out', to_s: 'oh noes') }
-        let(:err) { double('err', to_s: 'kabloom') }
-        let(:status) { double('status', exitstatus: 1) }
-
-        # As of version 0.9.0 packer sends errors to stdout.
-        # This will print both stdout and stderr for in the future if/when
-        # they fix this oddity.
-        it 'prints stdout and stderr' do
-          allow(Open3).to receive(:capture3) do
-            [out, err, status]
-          end
-
-          expect{ SubCommands.new.execute(cmd: cmd, tpl: json) }
-            .to output("oh noes\nkabloom\n").to_stdout
-        end
-
-        context 'no stdout message' do
-          let(:out) { nil }
-
-          it 'only prints stderr' do
-            allow(Open3).to receive(:capture3) do
-              [out, err, status]
-            end
-
-            expect{ SubCommands.new.execute(cmd: cmd, tpl: json) }
-              .to output("kabloom\n").to_stdout
-          end
-        end
-
-        context 'no stderr message' do
-          let(:out) { double('out', to_s: 'oh noes') }
-          let(:err) { nil }
-
-          it 'only prints stdout' do
-            allow(Open3).to receive(:capture3) do
-              [out, err, status]
-            end
-
-            expect{ SubCommands.new.execute(cmd: cmd, tpl: json) }
-              .to output("oh noes\n").to_stdout
-          end
-        end
+      it 'returns the stdout, stderr and exit code' do
+        allow(PackRb::Executor).to receive(:run_cmd_stream_output)
+          .and_return(['out', 'err', 0])
+        expect(subject.execute(cmd: cmd, tpl: json)).to eq(['out', 'err', 0])
       end
     end
   end
