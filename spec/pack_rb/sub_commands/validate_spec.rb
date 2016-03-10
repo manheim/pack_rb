@@ -14,7 +14,7 @@ module PackRb
         end
       end
 
-      context '#validate' do
+      describe '#validate' do
         let(:json) { %Q{{"variables":{"foo":"bar"}}} }
         let(:opts) do
           {

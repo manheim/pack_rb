@@ -14,7 +14,7 @@ module PackRb
         end
       end
 
-      context '#inspect_tpl' do
+      describe '#inspect_tpl' do
         let(:json) { %Q{{"variables":{"foo":"bar"}}} }
         let(:opts) do
           {

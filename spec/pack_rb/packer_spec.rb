@@ -3,7 +3,7 @@ require 'pack_rb/packer'
 
 module PackRb
   describe Packer do
-    context '#command' do
+    describe '#command' do
       subject { Packer.new(opts).command }
 
       context 'machine-readable' do
@@ -21,7 +21,7 @@ module PackRb
       end
     end
 
-    context '#bin' do
+    describe '#bin' do
       subject { Packer.new(opts).bin }
 
       context 'default' do
@@ -57,7 +57,7 @@ module PackRb
       end
     end
 
-    context '#template' do
+    describe '#template' do
       subject { Packer.new(opts).template }
 
       context 'with hash' do

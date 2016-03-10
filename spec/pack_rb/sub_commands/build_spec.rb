@@ -14,7 +14,7 @@ module PackRb
         end
       end
 
-      context '#build_cmd' do
+      describe '#build_cmd' do
         let(:json) { %Q{{"variables":{"foo":"bar"}}} }
         let(:opts) do
           {
@@ -34,7 +34,7 @@ module PackRb
         end
       end
 
-      context '#parse_options' do
+      describe '#parse_options' do
         subject { @harness.new() }
 
         context 'unsupported' do

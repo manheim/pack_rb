@@ -11,7 +11,7 @@ module PackRb
       it { is_expected.to respond_to(:validate) }
     end
 
-    context '#execute' do
+    describe '#execute' do
       let(:cmd) { 'packer build' }
       let(:json) { %Q{{"variables":{"foo":"bar"}}} }
 
