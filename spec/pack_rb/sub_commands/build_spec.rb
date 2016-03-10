@@ -35,52 +35,64 @@ module PackRb
       end
 
       describe '#parse_options' do
-        subject { @harness.new() }
-
         context 'unsupported' do
+          subject { -> { @harness.new().parse_options(opts) } }
           let(:opts) { {foo: 'bar'} }
 
-          it 'should raise Error::UnsupportedOption' do
-            expect{ subject.parse_options(opts) }
-              .to raise_error(Error::UnsupportedOption)
-          end
+          it { is_expected.to raise_error(Error::UnsupportedOption) }
         end
 
         context 'supported' do
+          subject { @harness.new().parse_options(opts) }
+
           context 'array options' do
-            let(:except_opts) { {except: ['foo','bar']} }
-            let(:only_opts) { {only: ['foo','bar']} }
+            context 'except' do
+              let(:opts) { {except: ['foo','bar']} }
 
-            it 'should convert value to comma separated string' do
-              expect(subject.parse_options(except_opts))
-                .to eq('-except=foo,bar')
+              it { is_expected.to eq('-except=foo,bar') }
+            end
 
-              expect(subject.parse_options(only_opts)).to eq('-only=foo,bar')
+            context 'only' do
+              let(:opts) { {only: ['foo','bar']} }
+
+              it { is_expected.to eq('-only=foo,bar') }
             end
           end
 
           context 'boolean options' do
-            let(:opts) { {color: false} }
+            context 'color' do
+              let(:opts) { {color: false} }
 
-            it 'should return the exact value in option format' do
-              expect(subject.parse_options(opts)).to eq('-color=false')
+              it { is_expected.to eq('-color=false') }
             end
           end
 
           context 'flags' do
-            context 'when true' do
-              let(:force_opts) { {force: true} }
-              let(:debug_opts) { {debug: true} }
-              it 'should just return the flag name in option format' do
-                expect(subject.parse_options(force_opts)).to eq('-force')
-                expect(subject.parse_options(debug_opts)).to eq('-debug')
+            context 'force' do
+              context 'when true' do
+                let(:opts) { {force: true} }
+
+                it { is_expected.to eq('-force') }
+              end
+
+              context 'when false' do
+                let(:opts) { {force: false} }
+
+                it { is_expected.to eq('') }
               end
             end
 
-            context 'when false' do
-              let(:opts) { {force: false} }
-              it 'should return an empty string' do
-                expect(subject.parse_options(opts)).to eq('')
+            context 'debug' do
+              context 'when true' do
+                let(:opts) { {debug: true} }
+
+                it { is_expected.to eq('-debug') }
+              end
+
+              context 'when false' do
+                let(:opts) { {debug: false} }
+
+                it { is_expected.to eq('') }
               end
             end
           end
