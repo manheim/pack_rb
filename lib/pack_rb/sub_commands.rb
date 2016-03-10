@@ -10,7 +10,7 @@ module PackRb
     include PackRb::SubCommands::Inspect
     include PackRb::SubCommands::Validate
 
-    # Execute a Packer command.
+    # Execute a Packer command via {#run_cmd_stream_output}
     #
     # @param opts [Hash] options passed to the Packer class
     #
