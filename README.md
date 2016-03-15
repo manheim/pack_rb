@@ -65,6 +65,16 @@ packer = PackRb::Packer.new(tpl: 'config/template.json', machine_readable: true)
 packer.build(debug: true)
 ```
 
+### Streaming Output
+
+If you wish to have STDOUT and STDERR from the Packer command stream to the console as it runs,
+before calling ``.build`` (or another Packer command), you will need to disable output buffering:
+
+```ruby
+STDOUT.sync = true
+STDERR.sync = true
+```
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment. Run `bundle exec pack_rb` to use the gem in this directory, ignoring other installed copies of this gem.
