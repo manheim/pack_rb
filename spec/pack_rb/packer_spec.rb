@@ -10,13 +10,19 @@ module PackRb
         context 'when true' do
           let(:opts) { { machine_readable: true } }
 
-          it { is_expected.to eq('packer -machine-readable') }
+          it {
+            allow_any_instance_of(Packer).to receive(:bin).and_return('binpath')
+            is_expected.to eq('binpath -machine-readable')
+          }
         end
 
         context 'when false' do
           let(:opts) { Hash.new }
 
-          it { is_expected.to eq('packer') }
+          it {
+            allow_any_instance_of(Packer).to receive(:bin).and_return('binpath')
+            is_expected.to eq('binpath')
+          }
         end
       end
     end
@@ -24,12 +30,42 @@ module PackRb
     describe '#bin' do
       subject { Packer.new(opts).bin }
 
-      context 'default' do
+      context 'packer found on path' do
         let(:opts) { Hash.new }
-        it { is_expected.to eq('packer') }
+        it {
+          allow_any_instance_of(Packer).to receive(:find_executable)
+            .with('packer').and_return('/path/to/packer')
+          allow_any_instance_of(Packer).to receive(:find_executable)
+            .with('packer-io').and_return(nil)
+          is_expected.to eq('/path/to/packer')
+        }
       end
 
-      context '/usr/local/bin/packer' do
+      context 'packer-io found on path' do
+        let(:opts) { Hash.new }
+        it {
+          allow_any_instance_of(Packer).to receive(:find_executable)
+            .with('packer').and_return(nil)
+          allow_any_instance_of(Packer).to receive(:find_executable)
+            .with('packer-io').and_return('/path/to/packer-io')
+          is_expected.to eq('/path/to/packer-io')
+        }
+      end
+
+      context 'neither binary name found on path' do
+        let(:opts) { Hash.new }
+        it {
+          allow_any_instance_of(Packer).to receive(:find_executable)
+            .with('packer').and_return(nil)
+          allow_any_instance_of(Packer).to receive(:find_executable)
+            .with('packer-io').and_return(nil)
+          expect{ Packer.new(opts).command }.to raise_error(RuntimeError,
+            'Could not find packer or packer-io binary on path. Please ' \
+            'specify the full binary path with the \'bin_path\' option.')
+        }
+      end
+
+      context 'bin_path option specified' do
         let(:opts) { { bin_path: '/usr/local/bin/packer' } }
 
         it { is_expected.to eq('/usr/local/bin/packer') }
@@ -91,7 +127,7 @@ module PackRb
       let(:json) { %Q{{"variables":{"foo":"bar"}}} }
       let(:expected_opts) do
         {
-          base_cmd: 'packer',
+          base_cmd: 'binpath',
           tpl: json,
           args: { debug: true, only: ['foo','bar'] }
         }
@@ -99,6 +135,7 @@ module PackRb
 
       it 'delegates to commander' do
         p = Packer.new(tpl: json)
+        allow_any_instance_of(Packer).to receive(:bin).and_return('binpath')
         expect(p.commander).to receive(:build).with(expected_opts)
         p.build(debug: true, only: ['foo','bar'])
       end
