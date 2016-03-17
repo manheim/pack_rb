@@ -68,11 +68,11 @@ packer.build(debug: true)
 ### Streaming Output
 
 If you wish to have STDOUT and STDERR from the Packer command stream to the console as it runs,
-before calling ``.build`` (or another Packer command), you will need to disable output buffering:
+you will need to enable streaming by setting ``stream_output: true``:
 
 ```ruby
-STDOUT.sync = true
-STDERR.sync = true
+PackRb::Packer.new(tpl: 'config/template.json', machine_readable: true, stream_output: true)
+packer.build(debug :true)
 ```
 
 ## Development
