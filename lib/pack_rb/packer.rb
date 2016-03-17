@@ -26,6 +26,7 @@ module PackRb
       @machine_readable = opts[:machine_readable]
       @bin_path         = opts[:bin_path]
       @tpl              = opts[:tpl]
+      @stream_output    = opts.fetch(:stream_output, false)
     end
 
     def command
@@ -55,7 +56,7 @@ module PackRb
     end
 
     def commander
-      @commander ||= PackRb::SubCommands.new
+      @commander ||= PackRb::SubCommands.new(stream_output: @stream_output)
     end
 
     def method_missing(name, *args, &block)

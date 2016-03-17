@@ -140,6 +140,30 @@ module PackRb
         p.build(debug: true, only: ['foo','bar'])
       end
 
+      context 'handling of stream_output' do
+        let(:p) { Packer.new(opts) }
+        let(:f) { stub_const('PackRb::SubCommands', double('fake')) }
+        before  { allow(f).to receive(:new) }
+
+        context 'when stream_output is set to true' do
+          let(:opts) { {stream_output: true} }
+
+          it 'should pass stream_output: true to the delegate' do
+            p.commander
+            expect(f).to have_received(:new).with(opts)
+          end
+        end
+
+        context 'when stream_output is not set' do
+          let(:opts) { {} }
+
+          it 'shoudl pass stream_output: false to the delegate' do
+            p.commander
+            expect(f).to have_received(:new).with(stream_output: false)
+          end
+        end
+      end
+
       it 'raises if sub command not supported' do
         expect{ Packer.new.foo }.to raise_error(NoMethodError)
       end

@@ -9,6 +9,13 @@ module PackRb
     include PackRb::SubCommands::Inspect
     include PackRb::SubCommands::Validate
 
+    def initialize(opts = {})
+      if opts[:stream_output]
+        STDOUT.sync = true
+        STDERR.sync = true
+      end
+    end
+
     # Execute a Packer command via {PackRb::Executor.run_cmd_stream_output}
     #
     # @param opts [Hash] options passed to the Packer class
