@@ -37,7 +37,7 @@ module PackRb
 
       it 'runs the provided command using run_cmd_stream_output' do
         allow(PackRb::Executor).to receive(:run_cmd_stream_output)
-          .and_return(['out', 'err', 0])
+          .and_return(['out_and_err', 0])
         expect(PackRb::Executor).to receive(:run_cmd_stream_output).once
           .with("#{cmd} -", json)
         subject.execute(cmd: cmd, tpl: json)
@@ -45,8 +45,8 @@ module PackRb
 
       it 'returns the stdout, stderr and exit code' do
         allow(PackRb::Executor).to receive(:run_cmd_stream_output)
-          .and_return(['out', 'err', 0])
-        expect(subject.execute(cmd: cmd, tpl: json)).to eq(['out', 'err', 0])
+          .and_return(['out_and_err', 0])
+        expect(subject.execute(cmd: cmd, tpl: json)).to eq(['out_and_err', 0])
       end
     end
   end
