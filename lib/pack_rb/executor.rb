@@ -10,13 +10,15 @@ module PackRb
     # prone to deadlocking if large chunks of data are written to the pipes.
     #
     # @param cmd [String] command to run
+    # @param tpl [String] the template content
     # @return [Array] - out_err [String], exit code [Fixnum]
-    def self.run_cmd_stream_output(cmd)
+    def self.run_cmd_stream_output(cmd, tpl)
       old_sync = $stdout.sync
       $stdout.sync = true
       all_out_err = ''
       exit_status = nil
       Open3.popen2e(cmd) do |stdin, stdout_and_err, wait_thread|
+        stdin.write(tpl)
         stdin.close_write
         begin
           while (line = stdout_and_err.gets)
