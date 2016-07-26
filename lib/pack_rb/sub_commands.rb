@@ -20,7 +20,7 @@ module PackRb
     #
     # @param opts [Hash] options passed to the Packer class
     #
-    # @return [Array] - stdout [String], stderr [String], exit code [Fixnum]
+    # @return [Array] - stdout_and_err [String], exit code [Fixnum]
     def execute(opts)
       cmd = opts[:cmd]
       tpl = opts[:tpl]

@@ -65,6 +65,13 @@ packer = PackRb::Packer.new(tpl: 'config/template.json', machine_readable: true)
 packer.build(debug: true)
 ```
 
+### Output
+
+The Packer methods will return a 2-item array:
+
+* String, combined STDOUT and STDERR of the ``packer`` process
+* Fixnum, ``packer`` process exit code
+
 ### Streaming Output
 
 If you wish to have STDOUT and STDERR from the Packer command stream to the console as it runs,
